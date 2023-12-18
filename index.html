@@ -66,13 +66,11 @@
 
   async function loadModel() {
     model = await tf.loadLayersModel('https://raw.githubusercontent.com/xDSUP/ModelNumberParser/main/model.json');
-    alert('Model Loaded!');
   }
 
   function preprocessCanvas() {
-
-    //ctx.imageSmoothingEnabled = true;
-    //ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     image = tf.browser.fromPixels(imgData)
     const tensor = tf.image.resizeBilinear(image, [28, 28]).sum(2).expandDims(0).expandDims(-1)
@@ -82,23 +80,18 @@
 
   async function predictDigit() {
     const tensor = preprocessCanvas();
-    const prediction = model.predict(tensor);a
+    const prediction = model.predict(tensor);
     const digit = prediction.argMax(1).dataSync();
     console.log(prediction);
     document.getElementById('predictionResult').innerText = `Predicted Digit: ${digit}`;
   }
 
   function clearCanvas() {
-    const canvas = document.getElementById('digitCanvas');
-    const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     document.getElementById('predictionResult').innerText = '';
   }
 
   function initCanvas() {
-    const canvas = document.getElementById('digitCanvas');
-    const ctx = canvas.getContext('2d');
-
     canvas.addEventListener('mousedown', () => {
       drawing = true;
       ctx.beginPath();
@@ -115,9 +108,9 @@
     function draw(e) {
       if (!drawing) return;
 
-      ctx.lineWidth = 10;
+      ctx.lineWidth = 20;
       ctx.lineCap = 'round';
-      ctx.strokeStyle = '#000';
+      ctx.strokeStyle = 'red';
 
       ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
       ctx.stroke();
