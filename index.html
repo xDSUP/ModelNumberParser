@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digit Recognition</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            text-align: center;
+            margin: 40px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        canvas {
+            border: 1px solid #555;
+            margin: 20px;
+            background-color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #predictionResult {
+            font-size: 20px;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        img {
+            width: 200px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Digit Recognition</h1>
+<canvas id="digitCanvas" width="200" height="200"></canvas>
+<br>
+<button onclick="clearCanvas()">Clear</button>
+<button onclick="predictDigit()">Predict</button>
+<div id="predictionResult"></div>
+<img src="https://placekitten.com/200/200" alt="Cute Kitten">
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script>
+  <script>
+    let model;
+
+    async function loadModel() {
+    model = await tf.loadLayersModel('ССЫЛКА_НА_ВАШУ_МОДЕЛЬ');
+    alert('Model Loaded!');
+  }
+
+    function preprocessCanvas() {
+    const canvas = document.getElementById('digitCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const tensor = tf.browser.fromPixels(imgData, 1)
+    .resizeNearestNeighbor([28, 28])
+    .mean(2)
+    .toFloat()
+    .div(tf.scalar(255))
+    .reshape([1, 28, 28, 1]);
+
+    return tensor;
+  }
+
+    async function predictDigit() {
+    const tensor = preprocessCanvas();
+    const prediction = model.predict(tensor);
+    const digit = tf.argMax(prediction, 1).dataSync()[0];
+    document.getElementById('predictionResult').innerText = `Predicted Digit: ${digit}`;
+  }
+
+    function clearCanvas() {
+    const canvas = document.getElementById('digitCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('predictionResult').innerText = '';
+  }
+
+    loadModel();
+</script>
+</script>
+</body>
+</html>
